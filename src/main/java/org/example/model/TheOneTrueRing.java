@@ -7,8 +7,9 @@ import lombok.Setter;
 @Setter
 
 public class TheOneTrueRing extends Doughnut{
-    public TheOneTrueRing(double price) {
-        super(price, DoughnutType.THE_ONE_TRUE_RING, 60, 30);
+    public TheOneTrueRing(double price, int amount) {
+        super(price, DoughnutType.THE_ONE_TRUE_RING, 60, 30, amount);
         this.price = price;
+        this.amount = amount;
     }
 }

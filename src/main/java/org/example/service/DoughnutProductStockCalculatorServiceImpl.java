@@ -1,15 +1,15 @@
 package org.example.service;
 
+import lombok.AllArgsConstructor;
 import org.example.model.Doughnut;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@AllArgsConstructor
 public class DoughnutProductStockCalculatorServiceImpl implements DoughnutProductStockCalculatorService {
-    Map<String, List<Doughnut>> weekSchdule = new HashMap<>();
-    List<Doughnut> productList = new ArrayList<>();
+    Map<String, List<Doughnut>> weekSchedule;
+    List<Doughnut> productList;
 
     @Override
     public int calculateFlourForEachDoughnut() {
@@ -20,8 +20,8 @@ public class DoughnutProductStockCalculatorServiceImpl implements DoughnutProduc
 
     @Override
     public int calculateTotalSugarForDay(String day) {
-        return weekSchdule.get(day).stream()
-                .mapToInt(Doughnut::getSugar)
+        return weekSchedule.get(day).stream()
+                .mapToInt(s -> s.getSugar() * s.getAmount())
                 .sum();
     }
 }
