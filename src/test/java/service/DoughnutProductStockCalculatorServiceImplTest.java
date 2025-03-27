@@ -83,4 +83,55 @@ class DoughnutProductStockCalculatorServiceImplTest {
         );
         assertEquals(expectedMessage, exception.getMessage());
     }
+
+    private static Stream<Arguments> removeDoughnutParameters() {
+        return Stream.of(
+                Arguments.of(Day.SATURDAY, DoughnutType.RING_OF_FIRE, 1, 9),
+                Arguments.of(Day.SUNDAY, DoughnutType.RING_OF_FIRE, 1, 4),
+                Arguments.of(Day.SATURDAY, DoughnutType.THE_ONE_TRUE_RING, 1, 19),
+                Arguments.of(Day.SUNDAY, DoughnutType.THE_ONE_TRUE_RING, 1, 9),
+                Arguments.of(Day.SATURDAY, DoughnutType.DOH_NUTS, 1, 29),
+                Arguments.of(Day.SUNDAY, DoughnutType.DOH_NUTS, 1, 19)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("removeDoughnutParameters")
+    void givenDoughnutTypeAmountAndDay_whenRemovingDoughnuts_thenDoughnutsRemoved(Day day, DoughnutType doughnutType, int removing, int expectedAmount) {
+        doughnutProductStockCalculatorService = new DoughnutProductStockCalculatorServiceImpl(doughnuts);
+        doughnutProductStockCalculatorService.removeDoughnutProductStock(doughnutType, day, removing);
+
+        Doughnut doughnut = doughnuts.stream()
+                .filter(d -> d.getType() == doughnutType)
+                .findFirst()
+                .orElseThrow();
+
+        assertEquals(expectedAmount, doughnut.getSchedule().get(day));
+
+    }
+
+    private static Stream<Arguments> removeDoughnutInvalidParameters() {
+        return Stream.of(
+                Arguments.of(null, DoughnutType.RING_OF_FIRE, 1, "day is null"),
+                Arguments.of(Day.SUNDAY, null, 1, "doughnut type is null"),
+                Arguments.of(Day.SATURDAY, DoughnutType.THE_ONE_TRUE_RING, 0, "amount must be greater than 0"),
+                Arguments.of(Day.SUNDAY, DoughnutType.THE_ONE_TRUE_RING, -1, "amount must be greater than 0"),
+                Arguments.of(Day.SATURDAY, DoughnutType.DOH_NUTS, 1, "Invalid doughnut type: Doh Nuts"),
+                Arguments.of(Day.SUNDAY, DoughnutType.THE_ONE_TRUE_RING, 21, "Doughnut doesn't have sufficient stock on Sunday for doughnut type The One True Ring")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("removeDoughnutInvalidParameters")
+    void givenDoughnutTypeAmountAndDay_whenRemovingDoughnuts_thenDoughnutsRemoved(Day day, DoughnutType doughnutType, int removing, String expectedAmount) {
+        doughnuts.remove(1);
+        doughnutProductStockCalculatorService = new DoughnutProductStockCalculatorServiceImpl(doughnuts);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> doughnutProductStockCalculatorService.removeDoughnutProductStock(doughnutType, day, removing)
+        );
+
+        assertEquals(expectedAmount, exception.getMessage());
+    }
 }
