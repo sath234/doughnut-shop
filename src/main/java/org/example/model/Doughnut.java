@@ -1,8 +1,9 @@
 package org.example.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+
+import java.util.EnumMap;
 
 @Data
 @AllArgsConstructor
@@ -11,5 +12,5 @@ public class Doughnut {
     protected DoughnutType type;
     protected int flour;
     protected int sugar;
-    protected int amount;
+    protected EnumMap<Day, Integer> schedule;
 }
