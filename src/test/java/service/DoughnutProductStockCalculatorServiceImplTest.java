@@ -39,13 +39,13 @@ class DoughnutProductStockCalculatorServiceImplTest {
     }
 
     @Test
-    void testTotalFlourForEachDoughnutType() {
+    void givenDoughnuts_whenCalculatingTotalFlourForEachDoughnut_thenReturnCorrectTotal() {
         doughnutProductStockCalculatorService = new DoughnutProductStockCalculatorServiceImpl(doughnuts);
         int totalFlour = doughnutProductStockCalculatorService.calculateFlourForEachDoughnut();
         assertEquals(120, totalFlour);
     }
 
-    private static Stream<Arguments> weekScheduleProvider() {
+    private static Stream<Arguments> dayAndExpectedSugarProvider() {
         return Stream.of(
                 Arguments.of(Day.SATURDAY, 1350),
                 Arguments.of(Day.SUNDAY, 775)
@@ -53,28 +53,28 @@ class DoughnutProductStockCalculatorServiceImplTest {
     }
 
     @ParameterizedTest
-    @MethodSource("weekScheduleProvider")
-    void testTotalFlourForEachDoughnutType(Day day, int expectedFlour) {
+    @MethodSource("dayAndExpectedSugarProvider")
+    void givenDay_whenCalculatingTotalSugar_thenReturnExpectedAmount(Day day, int expectedFlour) {
         doughnutProductStockCalculatorService = new DoughnutProductStockCalculatorServiceImpl(doughnuts);
         int totalFlour = doughnutProductStockCalculatorService.calculateTotalSugarForDay(day);
 
         assertEquals(expectedFlour, totalFlour);
     }
 
-    private static Stream<Arguments> invalidParametersProvider() {
+    private static Stream<Arguments> invalidDayAndExceptionMessageProvider() {
         return Stream.of(
                 Arguments.of(null, "day is null"),
                 Arguments.of(Day.MONDAY, "Invalid day: no doughnut scheduled on Monday"),
                 Arguments.of(Day.TUESDAY, "Invalid day: no doughnut scheduled on Tuesday"),
-                Arguments.of( Day.WEDNESDAY, "Invalid day: no doughnut scheduled on Wednesday"),
+                Arguments.of(Day.WEDNESDAY, "Invalid day: no doughnut scheduled on Wednesday"),
                 Arguments.of(Day.THURSDAY, "Invalid day: no doughnut scheduled on Thursday"),
                 Arguments.of(Day.FRIDAY, "Invalid day: no doughnut scheduled on Friday")
         );
     }
 
     @ParameterizedTest
-    @MethodSource("invalidParametersProvider")
-    void testExceptionThrownWhenDayIsNull(Day day, String expectedMessage) {
+    @MethodSource("invalidDayAndExceptionMessageProvider")
+    void givenInvalidOrNullDay_whenCalculatingTotalSugar_thenThrowIllegalArgumentException(Day day, String expectedMessage) {
         doughnutProductStockCalculatorService = new DoughnutProductStockCalculatorServiceImpl(doughnuts);
 
         IllegalArgumentException exception = assertThrows(
@@ -83,6 +83,4 @@ class DoughnutProductStockCalculatorServiceImplTest {
         );
         assertEquals(expectedMessage, exception.getMessage());
     }
-
-
 }
