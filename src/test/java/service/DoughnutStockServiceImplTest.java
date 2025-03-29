@@ -1,7 +1,7 @@
 package service;
 
 import org.example.model.*;
-import org.example.service.DoughnutProductStockCalculatorServiceImpl;
+import org.example.service.DoughnutStockServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -13,8 +13,8 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DoughnutProductStockCalculatorServiceImplTest {
-    private DoughnutProductStockCalculatorServiceImpl doughnutProductStockCalculatorService;
+class DoughnutStockServiceImplTest {
+    private DoughnutStockServiceImpl doughnutProductStockCalculatorService;
     private List<Doughnut> doughnuts;
 
     @BeforeEach
@@ -40,7 +40,7 @@ class DoughnutProductStockCalculatorServiceImplTest {
 
     @Test
     void givenDoughnuts_whenCalculatingTotalFlourForEachDoughnut_thenReturnCorrectTotal() {
-        doughnutProductStockCalculatorService = new DoughnutProductStockCalculatorServiceImpl(doughnuts);
+        doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
         int totalFlour = doughnutProductStockCalculatorService.calculateFlourForEachDoughnut();
         assertEquals(120, totalFlour);
     }
@@ -55,7 +55,7 @@ class DoughnutProductStockCalculatorServiceImplTest {
     @ParameterizedTest
     @MethodSource("dayAndExpectedSugarProvider")
     void givenDay_whenCalculatingTotalSugar_thenReturnExpectedAmount(Day day, int expectedFlour) {
-        doughnutProductStockCalculatorService = new DoughnutProductStockCalculatorServiceImpl(doughnuts);
+        doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
         int totalFlour = doughnutProductStockCalculatorService.calculateTotalSugarForDay(day);
 
         assertEquals(expectedFlour, totalFlour);
@@ -63,7 +63,7 @@ class DoughnutProductStockCalculatorServiceImplTest {
 
     private static Stream<Arguments> invalidDayAndExceptionMessageProvider() {
         return Stream.of(
-                Arguments.of(null, "day is null"),
+                Arguments.of(null, "Day is null"),
                 Arguments.of(Day.MONDAY, "Invalid day: no doughnut scheduled on Monday"),
                 Arguments.of(Day.TUESDAY, "Invalid day: no doughnut scheduled on Tuesday"),
                 Arguments.of(Day.WEDNESDAY, "Invalid day: no doughnut scheduled on Wednesday"),
@@ -75,7 +75,7 @@ class DoughnutProductStockCalculatorServiceImplTest {
     @ParameterizedTest
     @MethodSource("invalidDayAndExceptionMessageProvider")
     void givenInvalidOrNullDay_whenCalculatingTotalSugar_thenThrowIllegalArgumentException(Day day, String expectedMessage) {
-        doughnutProductStockCalculatorService = new DoughnutProductStockCalculatorServiceImpl(doughnuts);
+        doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -98,7 +98,7 @@ class DoughnutProductStockCalculatorServiceImplTest {
     @ParameterizedTest
     @MethodSource("removeDoughnutParameters")
     void givenDoughnutTypeAmountAndDay_whenRemovingDoughnuts_thenDoughnutsRemoved(Day day, DoughnutType doughnutType, int removing, int expectedAmount) {
-        doughnutProductStockCalculatorService = new DoughnutProductStockCalculatorServiceImpl(doughnuts);
+        doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
         doughnutProductStockCalculatorService.removeDoughnutProductStock(doughnutType, day, removing);
 
         Doughnut doughnut = doughnuts.stream()
@@ -112,8 +112,8 @@ class DoughnutProductStockCalculatorServiceImplTest {
 
     private static Stream<Arguments> removeDoughnutInvalidParameters() {
         return Stream.of(
-                Arguments.of(null, DoughnutType.RING_OF_FIRE, 1, "day is null"),
-                Arguments.of(Day.SUNDAY, null, 1, "doughnut type is null"),
+                Arguments.of(null, DoughnutType.RING_OF_FIRE, 1, "Day is null"),
+                Arguments.of(Day.SUNDAY, null, 1, "doughnutType is null"),
                 Arguments.of(Day.SATURDAY, DoughnutType.THE_ONE_TRUE_RING, 0, "amount must be greater than 0"),
                 Arguments.of(Day.SUNDAY, DoughnutType.THE_ONE_TRUE_RING, -1, "amount must be greater than 0"),
                 Arguments.of(Day.SATURDAY, DoughnutType.DOH_NUTS, 1, "Invalid doughnut type: Doh Nuts"),
@@ -125,7 +125,7 @@ class DoughnutProductStockCalculatorServiceImplTest {
     @MethodSource("removeDoughnutInvalidParameters")
     void givenDoughnutTypeAmountAndDay_whenRemovingDoughnuts_thenDoughnutsRemoved(Day day, DoughnutType doughnutType, int removing, String expectedAmount) {
         doughnuts.remove(1);
-        doughnutProductStockCalculatorService = new DoughnutProductStockCalculatorServiceImpl(doughnuts);
+        doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
