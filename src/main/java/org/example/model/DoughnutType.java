@@ -3,7 +3,6 @@ package org.example.model;
 import lombok.Getter;
 
 @Getter
-// just use
 public enum DoughnutType {
     THE_ONE_TRUE_RING("The One True Ring"),
     DOH_NUTS("Doh Nuts"),

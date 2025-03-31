@@ -18,8 +18,5 @@ public enum Day {
         this.dayName = dayName;
     }
 
-    public String getDayName() {
-        return dayName;
-    }
 }
 

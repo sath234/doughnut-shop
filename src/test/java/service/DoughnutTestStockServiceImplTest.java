@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DoughnutStockServiceImplTest {
+class DoughnutTestStockServiceImplTest {
     private DoughnutStockServiceImpl doughnutProductStockCalculatorService;
     private List<Doughnut> doughnuts;
 
