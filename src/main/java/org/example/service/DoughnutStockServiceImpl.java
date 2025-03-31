@@ -28,7 +28,25 @@ public class DoughnutStockServiceImpl implements DoughnutStockService {
     }
 
     @Override
-    public void removeDoughnutProductStock(DoughnutType doughnutType, Day day, int amount) {
+    public int avaliableDoughnutsForDay(DoughnutType doughnutType, Day day) {
+        validateNotNull(day, "Day");
+        Doughnut doughnut = findDoughnut(doughnutType);
+        return doughnut.getSchedule().getOrDefault(day, 0);
+    }
+
+    @Override
+    public void addDoughnutStock(DoughnutType doughnutType, Day day, int amount) {
+        validateNotNull(doughnutType, "doughnutType");
+        validateNotNull(day, "Day");
+        validateAmount(amount);
+
+        Doughnut doughnut = findDoughnut(doughnutType);
+
+        doughnut.getSchedule().compute(day, (k, currentStock) -> currentStock + amount);
+    }
+
+    @Override
+    public void removeDoughnutStock(DoughnutType doughnutType, Day day, int amount) {
         validateNotNull(doughnutType, "doughnutType");
         validateNotNull(day, "Day");
         validateAmount(amount);
@@ -36,7 +54,7 @@ public class DoughnutStockServiceImpl implements DoughnutStockService {
         Doughnut doughnut = findDoughnut(doughnutType);
         Integer currentStock = doughnut.getSchedule().get(day);
 
-        if (currentStock == null || currentStock < amount) {
+        if (currentStock < amount) {
             throw new IllegalArgumentException("Doughnut doesn't have sufficient stock on " + day.getDayName() + " for doughnut type " + doughnutType.getDisplayName());
         }
 

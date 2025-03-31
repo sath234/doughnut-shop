@@ -7,6 +7,8 @@ import java.util.EnumMap;
 
 @Getter
 @Setter
+
+// make them constants for flour and sugar
 public class RingOfFire extends Doughnut {
     public RingOfFire(double price, EnumMap<Day, Integer> schedule) {
         super(price, DoughnutType.RING_OF_FIRE, 30, 15, schedule);

@@ -84,6 +84,45 @@ class DoughnutStockServiceImplTest {
         assertEquals(expectedMessage, exception.getMessage());
     }
 
+    private static Stream<Arguments> retrieveDoughnutForDayParameters() {
+        return Stream.of(
+                Arguments.of(DoughnutType.DOH_NUTS, Day.SATURDAY, 30),
+                Arguments.of(DoughnutType.THE_ONE_TRUE_RING, Day.SUNDAY, 10),
+                Arguments.of(DoughnutType.RING_OF_FIRE, Day.SATURDAY, 10),
+                Arguments.of(DoughnutType.RING_OF_FIRE, Day.MONDAY, 0)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("retrieveDoughnutForDayParameters")
+    void givenDoughnutTypeAndDay_whenCalculatingAvaliableDoughnuts_thenReturnExpectedAmount(DoughnutType doughnutType, Day day, int expectedAmount) {
+        doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
+        int totalDoughnuts = doughnutProductStockCalculatorService.avaliableDoughnutsForDay(doughnutType, day);
+
+        assertEquals(expectedAmount, totalDoughnuts);
+    }
+
+    private static Stream<Arguments> invalidRetrieveDoughnutForDayParameters() {
+        return Stream.of(
+                Arguments.of(DoughnutType.DOH_NUTS, Day.MONDAY, "Invalid doughnut type: Doh Nuts"),
+                Arguments.of(DoughnutType.THE_ONE_TRUE_RING, null, "Day is null")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidRetrieveDoughnutForDayParameters")
+    void givenInvalidDoughnutTypeorDay_whenCalculatingAvaliableDoughnuts_thenReturnIllegalArgumentException(DoughnutType doughnutType, Day day, String expectedMessage) {
+        doughnuts.remove(1);
+        doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> doughnutProductStockCalculatorService.avaliableDoughnutsForDay(doughnutType, day)
+        );
+
+        assertEquals(expectedMessage, exception.getMessage());
+    }
+
     private static Stream<Arguments> removeDoughnutParameters() {
         return Stream.of(
                 Arguments.of(Day.SATURDAY, DoughnutType.RING_OF_FIRE, 1, 9),
@@ -99,7 +138,7 @@ class DoughnutStockServiceImplTest {
     @MethodSource("removeDoughnutParameters")
     void givenDoughnutTypeAmountAndDay_whenRemovingDoughnuts_thenDoughnutsRemoved(Day day, DoughnutType doughnutType, int removing, int expectedAmount) {
         doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
-        doughnutProductStockCalculatorService.removeDoughnutProductStock(doughnutType, day, removing);
+        doughnutProductStockCalculatorService.removeDoughnutStock(doughnutType, day, removing);
 
         Doughnut doughnut = doughnuts.stream()
                 .filter(d -> d.getType() == doughnutType)
@@ -129,7 +168,56 @@ class DoughnutStockServiceImplTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> doughnutProductStockCalculatorService.removeDoughnutProductStock(doughnutType, day, removing)
+                () -> doughnutProductStockCalculatorService.removeDoughnutStock(doughnutType, day, removing)
+        );
+
+        assertEquals(expectedAmount, exception.getMessage());
+    }
+
+    private static Stream<Arguments> addDoughnutParameters() {
+        return Stream.of(
+                Arguments.of(Day.SATURDAY, DoughnutType.RING_OF_FIRE, 1,11),
+                Arguments.of(Day.SUNDAY, DoughnutType.RING_OF_FIRE, 1, 6),
+                Arguments.of(Day.SATURDAY, DoughnutType.THE_ONE_TRUE_RING, 5, 25),
+                Arguments.of(Day.SUNDAY, DoughnutType.THE_ONE_TRUE_RING, 7, 17),
+                Arguments.of(Day.SATURDAY, DoughnutType.DOH_NUTS, 4, 34),
+                Arguments.of(Day.SUNDAY, DoughnutType.DOH_NUTS, 8, 28)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("addDoughnutParameters")
+    void givenDoughnutTypeAmountAndDay_whenAddingDoughnuts_thenDoughnutsAddesToSchedule(Day day, DoughnutType doughnutType, int adding, int expectedAmount) {
+        doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
+        doughnutProductStockCalculatorService.addDoughnutStock(doughnutType, day, adding);
+
+        Doughnut doughnut = doughnuts.stream()
+                .filter(d -> d.getType() == doughnutType)
+                .findFirst()
+                .orElseThrow();
+
+        assertEquals(expectedAmount, doughnut.getSchedule().get(day));
+    }
+
+    private static Stream<Arguments> addDoughnutInvalidParameters() {
+        return Stream.of(
+                Arguments.of(null, DoughnutType.RING_OF_FIRE, 1, "Day is null"),
+                Arguments.of(Day.SUNDAY, null, 1, "doughnutType is null"),
+                Arguments.of(Day.SATURDAY, DoughnutType.THE_ONE_TRUE_RING, 0, "amount must be greater than 0"),
+                Arguments.of(Day.SUNDAY, DoughnutType.THE_ONE_TRUE_RING, -1, "amount must be greater than 0"),
+                Arguments.of(Day.SATURDAY, DoughnutType.DOH_NUTS, 1, "Invalid doughnut type: Doh Nuts")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("addDoughnutInvalidParameters")
+    void givenInvalidDoughnutTypeAmountOrDay_whenRemovingDoughnuts_thenDoughnutsRemoved(Day day, DoughnutType doughnutType, int adding, String expectedAmount) {
+        doughnuts.remove(1);
+        doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> doughnutProductStockCalculatorService.addDoughnutStock(doughnutType, day, adding)
         );
 
         assertEquals(expectedAmount, exception.getMessage());
