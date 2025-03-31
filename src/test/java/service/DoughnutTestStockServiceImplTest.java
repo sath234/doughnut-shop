@@ -222,4 +222,121 @@ class DoughnutTestStockServiceImplTest {
 
         assertEquals(expectedAmount, exception.getMessage());
     }
+
+    private static Stream<Arguments> bulkAddDoughnutParameters() {
+        return Stream.of(
+                Arguments.of(DoughnutType.RING_OF_FIRE, Day.SATURDAY, 1, 11),
+                Arguments.of(DoughnutType.RING_OF_FIRE, Day.SUNDAY, 1, 6),
+                Arguments.of(DoughnutType.THE_ONE_TRUE_RING, Day.SATURDAY, 5, 25),
+                Arguments.of(DoughnutType.THE_ONE_TRUE_RING, Day.SUNDAY, 7, 17),
+                Arguments.of(DoughnutType.DOH_NUTS, Day.SATURDAY, 4, 34),
+                Arguments.of(DoughnutType.DOH_NUTS, Day.SUNDAY, 8, 28)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("bulkAddDoughnutParameters")
+    void givenBulkMap_whenAddingBulkStock_thenScheduleIsUpdated(DoughnutType type, Day day, int add, int expected) {
+
+        doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
+
+        Map<DoughnutType, Map<Day, Integer>> bulkUpdate = Map.of(
+                type, Map.of(day, add)
+        );
+
+        doughnutProductStockCalculatorService.addBulkStock(bulkUpdate);
+
+        Doughnut doughnut = doughnuts.stream()
+                .filter(d -> d.getType() == type)
+                .findFirst()
+                .orElseThrow();
+
+        assertEquals(expected, doughnut.getSchedule().get(day));
+    }
+
+    private static Stream<Arguments> invalidBulkAddStockParameters() {
+        return Stream.of(
+                Arguments.of(DoughnutType.RING_OF_FIRE, Day.SUNDAY, -1, "amount must be greater than 0"),
+                Arguments.of(DoughnutType.RING_OF_FIRE, Day.SUNDAY, 0, "amount must be greater than 0")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidBulkAddStockParameters")
+    void givenInvalidInput_whenAddingBulkStock_thenThrowsException(
+            DoughnutType type, Day day, int amount, String expectedMessage) {
+
+        doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
+
+        Map<DoughnutType, Map<Day, Integer>> bulkUpdate = Map.of(
+                type, Map.of(day, amount)
+        );
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> doughnutProductStockCalculatorService.addBulkStock(bulkUpdate)
+        );
+
+        assertTrue(exception.getMessage().contains(expectedMessage));
+    }
+
+    private static Stream<Arguments> bulkRemoveDoughnutParameters() {
+        return Stream.of(
+                Arguments.of(DoughnutType.RING_OF_FIRE, Day.SATURDAY, 1, 9),
+                Arguments.of(DoughnutType.RING_OF_FIRE, Day.SUNDAY, 2, 3),
+                Arguments.of(DoughnutType.THE_ONE_TRUE_RING, Day.SATURDAY, 5, 15),
+                Arguments.of(DoughnutType.THE_ONE_TRUE_RING, Day.SUNDAY, 4, 6),
+                Arguments.of(DoughnutType.DOH_NUTS, Day.SATURDAY, 10, 20),
+                Arguments.of(DoughnutType.DOH_NUTS, Day.SUNDAY, 3, 17)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("bulkRemoveDoughnutParameters")
+    void givenBulkMap_whenRemovingBulkStock_thenScheduleIsUpdated(
+            DoughnutType type, Day day, int remove, int expected) {
+
+        doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
+
+        Map<DoughnutType, Map<Day, Integer>> bulkRemovals = Map.of(
+                type, Map.of(day, remove)
+        );
+
+        doughnutProductStockCalculatorService.removeBulkStock(bulkRemovals);
+
+        Doughnut doughnut = doughnuts.stream()
+                .filter(d -> d.getType() == type)
+                .findFirst()
+                .orElseThrow();
+
+        assertEquals(expected, doughnut.getSchedule().get(day));
+    }
+
+    private static Stream<Arguments> invalidBulkRemoveStockParameters() {
+        return Stream.of(
+                Arguments.of(DoughnutType.RING_OF_FIRE, Day.SUNDAY, -1, "amount must be greater than 0"),
+                Arguments.of(DoughnutType.RING_OF_FIRE, Day.SUNDAY, 0, "amount must be greater than 0"),
+                Arguments.of(DoughnutType.RING_OF_FIRE, Day.SUNDAY, 99, "sufficient stock")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidBulkRemoveStockParameters")
+    void givenInvalidInput_whenRemovingBulkStock_thenThrowsException(
+            DoughnutType type, Day day, int amount, String expectedMessage) {
+
+        doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
+
+        Map<DoughnutType, Map<Day, Integer>> bulkRemovals = Map.of(
+                type, Map.of(day, amount)
+        );
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> doughnutProductStockCalculatorService.removeBulkStock(bulkRemovals)
+        );
+
+        assertTrue(exception.getMessage().contains(expectedMessage));
+    }
+
 }

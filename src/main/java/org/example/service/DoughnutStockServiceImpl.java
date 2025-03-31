@@ -6,6 +6,7 @@ import org.example.model.Doughnut;
 import org.example.model.DoughnutType;
 
 import java.util.List;
+import java.util.Map;
 
 @AllArgsConstructor
 public class DoughnutStockServiceImpl implements DoughnutStockService {
@@ -67,6 +68,47 @@ public class DoughnutStockServiceImpl implements DoughnutStockService {
 
         // Subtract the amount from the existing stock
         doughnut.getSchedule().put(day, currentStock - amount);
+    }
+
+    @Override
+    public void addBulkStock(Map<DoughnutType, Map<Day, Integer>> bulkUpdates) {
+        // For each doughnut type provided in the update map
+        bulkUpdates.forEach((doughnutType, dayMap) -> {
+            validateNotNull(doughnutType, "doughnutType");
+            Doughnut doughnut = findDoughnut(doughnutType);
+
+            // For each day/amount pair, validate and merge the amount into the current schedule
+            dayMap.forEach((day, amount) -> {
+                validateNotNull(day, "Day");
+                validateAmount(amount);
+
+                // Increase the scheduled quantity for the day by the specified amount
+                doughnut.getSchedule().merge(day, amount, Integer::sum);
+            });
+        });
+    }
+
+    @Override
+    public void removeBulkStock(Map<DoughnutType, Map<Day, Integer>> bulkRemovals) {
+        // For each doughnut type provided in the removal map
+        bulkRemovals.forEach((doughnutType, dayMap) -> {
+            validateNotNull(doughnutType, "doughnutType");
+            Doughnut doughnut = findDoughnut(doughnutType);
+
+            // For each day/amount pair, validate and subtract the amount from the schedule
+            dayMap.forEach((day, amount) -> {
+                validateNotNull(day, "Day");
+                validateAmount(amount);
+
+                Integer currentStock = doughnut.getSchedule().get(day);
+                if (currentStock == null || currentStock < amount) {
+                    throw new IllegalArgumentException("Doughnut doesn't have sufficient stock on " + day.getDayName() + " for doughnut type " + doughnutType.getDisplayName());
+                }
+
+                // Decrease the scheduled quantity for the day by the specified amount
+                doughnut.getSchedule().put(day, currentStock - amount);
+            });
+        });
     }
 
     // ----------- Helper Methods -----------

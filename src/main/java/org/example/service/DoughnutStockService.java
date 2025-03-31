@@ -3,6 +3,8 @@ package org.example.service;
 import org.example.model.Day;
 import org.example.model.DoughnutType;
 
+import java.util.Map;
+
 /**
  * Service interface for managing doughnut stock and calculating ingredient requirements.
  * <p>
@@ -13,14 +15,14 @@ import org.example.model.DoughnutType;
 public interface DoughnutStockService {
 
     /**
-     * Calculates the amount of flour (in grams or other units) required to make a single doughnut.
+     * Calculates the amount of flour (in grams) required to make a single doughnut.
      *
      * @return the amount of flour needed per doughnut
      */
     int calculateFlourForEachDoughnut();
 
     /**
-     * Calculates the total sugar (in grams or other units) needed for all doughnuts produced on a specific day.
+     * Calculates the total sugar (in grams) needed for all doughnuts produced on a specific day.
      *
      * @param day the day for which the sugar requirement should be calculated
      * @return the total amount of sugar needed for that day
@@ -53,5 +55,20 @@ public interface DoughnutStockService {
      * @param amount       the quantity of doughnuts to remove
      */
     void removeDoughnutStock(DoughnutType doughnutType, Day day, int amount);
-}
 
+    /**
+     * Adds multiple quantities of various doughnut types to their respective daily schedules.
+     *
+     * @param bulkUpdates a map where each key is a doughnut type, and each value is another map of day-to-amount pairs
+     *                    specifying how many doughnuts to add to each day for that type
+     */
+    void addBulkStock(Map<DoughnutType, Map<Day, Integer>> bulkUpdates);
+
+    /**
+     * Removes multiple quantities of various doughnut types from their respective daily schedules.
+     *
+     * @param bulkRemovals a map where each key is a doughnut type, and each value is another map of day-to-amount pairs
+     *                     specifying how many doughnuts to remove from each day for that type
+     */
+    void removeBulkStock(Map<DoughnutType, Map<Day, Integer>> bulkRemovals);
+}
