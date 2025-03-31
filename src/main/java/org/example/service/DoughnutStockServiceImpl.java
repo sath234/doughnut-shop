@@ -33,7 +33,7 @@ public class DoughnutStockServiceImpl implements DoughnutStockService {
     }
 
     @Override
-    public int avaliableDoughnutsForDay(DoughnutType doughnutType, Day day) {
+    public int getDoughnutsForDay(DoughnutType doughnutType, Day day) {
         validateNotNull(day, "Day");
 
         // Get the doughnut matching the type and return how many are scheduled for the day (defaulting to 0 if none)

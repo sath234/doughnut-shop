@@ -97,7 +97,7 @@ class DoughnutTestStockServiceImplTest {
     @MethodSource("retrieveDoughnutForDayParameters")
     void givenDoughnutTypeAndDay_whenCalculatingAvaliableDoughnuts_thenReturnExpectedAmount(DoughnutType doughnutType, Day day, int expectedAmount) {
         doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
-        int totalDoughnuts = doughnutProductStockCalculatorService.avaliableDoughnutsForDay(doughnutType, day);
+        int totalDoughnuts = doughnutProductStockCalculatorService.getDoughnutsForDay(doughnutType, day);
 
         assertEquals(expectedAmount, totalDoughnuts);
     }
@@ -117,7 +117,7 @@ class DoughnutTestStockServiceImplTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> doughnutProductStockCalculatorService.avaliableDoughnutsForDay(doughnutType, day)
+                () -> doughnutProductStockCalculatorService.getDoughnutsForDay(doughnutType, day)
         );
 
         assertEquals(expectedMessage, exception.getMessage());

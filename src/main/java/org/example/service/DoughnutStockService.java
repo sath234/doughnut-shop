@@ -36,7 +36,7 @@ public interface DoughnutStockService {
      * @param day          the day to check availability
      * @return the number of doughnuts available
      */
-    int avaliableDoughnutsForDay(DoughnutType doughnutType, Day day);
+    int getDoughnutsForDay(DoughnutType doughnutType, Day day);
 
     /**
      * Adds a specified quantity of a particular doughnut type to the stock for a given day.
