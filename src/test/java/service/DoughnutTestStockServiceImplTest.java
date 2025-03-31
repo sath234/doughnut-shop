@@ -9,6 +9,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,7 +46,7 @@ class DoughnutTestStockServiceImplTest {
         assertEquals(120, totalFlour);
     }
 
-    private static Stream<Arguments> dayAndExpectedSugarProvider() {
+    private static Stream<Arguments> dayAndExpectedSugarParameters() {
         return Stream.of(
                 Arguments.of(Day.SATURDAY, 1350),
                 Arguments.of(Day.SUNDAY, 775)
@@ -53,7 +54,7 @@ class DoughnutTestStockServiceImplTest {
     }
 
     @ParameterizedTest
-    @MethodSource("dayAndExpectedSugarProvider")
+    @MethodSource("dayAndExpectedSugarParameters")
     void givenDay_whenCalculatingTotalSugar_thenReturnExpectedAmount(Day day, int expectedFlour) {
         doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
         int totalFlour = doughnutProductStockCalculatorService.calculateTotalSugarForDay(day);
@@ -61,7 +62,7 @@ class DoughnutTestStockServiceImplTest {
         assertEquals(expectedFlour, totalFlour);
     }
 
-    private static Stream<Arguments> invalidDayAndExceptionMessageProvider() {
+    private static Stream<Arguments> invalidDayAndExceptionMessageParameters() {
         return Stream.of(
                 Arguments.of(null, "Day is null"),
                 Arguments.of(Day.MONDAY, "Invalid day: no doughnut scheduled on Monday"),
@@ -73,7 +74,7 @@ class DoughnutTestStockServiceImplTest {
     }
 
     @ParameterizedTest
-    @MethodSource("invalidDayAndExceptionMessageProvider")
+    @MethodSource("invalidDayAndExceptionMessageParameters")
     void givenInvalidOrNullDay_whenCalculatingTotalSugar_thenThrowIllegalArgumentException(Day day, String expectedMessage) {
         doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
 
@@ -91,6 +92,54 @@ class DoughnutTestStockServiceImplTest {
                 Arguments.of(DoughnutType.RING_OF_FIRE, Day.SATURDAY, 10),
                 Arguments.of(DoughnutType.RING_OF_FIRE, Day.MONDAY, 0)
         );
+    }
+
+    private static Stream<Arguments> calculateCostOfDoughnutsParameters() {
+        return Stream.of(
+                Arguments.of(List.of(DoughnutType.RING_OF_FIRE), 1, 2.50),
+                Arguments.of(List.of(DoughnutType.THE_ONE_TRUE_RING), 5, 15.00),
+                Arguments.of(List.of(DoughnutType.DOH_NUTS), 10, 25.00),
+                Arguments.of(List.of(DoughnutType.THE_ONE_TRUE_RING, DoughnutType.RING_OF_FIRE, DoughnutType.DOH_NUTS), 5, 40.00)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("calculateCostOfDoughnutsParameters")
+    void givenMapDoughnuts_whenCalculatingCost_thenCorrectCostIsReturned(List<DoughnutType> types, int amount, double expected) {
+        doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
+
+        Map<DoughnutType, Integer> doughnutsPurchased = types.stream()
+                .collect(Collectors.toMap(type -> type, type -> amount));
+
+
+        double cost = doughnutProductStockCalculatorService.calculateCostOfDoughnuts(doughnutsPurchased);
+
+        assertEquals(expected, cost);
+    }
+
+    private static Stream<Arguments> invalidCalculateCostOfDoughnutsParameters() {
+        return Stream.of(
+                Arguments.of(List.of(DoughnutType.RING_OF_FIRE), 0, "amount must be greater than 0"),
+                Arguments.of(List.of(DoughnutType.DOH_NUTS), -1, "amount must be greater than 0"),
+                Arguments.of(List.of(DoughnutType.THE_ONE_TRUE_RING), 5, "Invalid doughnut type: The One True Ring")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidCalculateCostOfDoughnutsParameters")
+    void givenInvalidMapDoughnuts_whenCalculatingCost_thenCorrectCostIsReturned(List<DoughnutType> types, int amount, String expectedMessage) {
+        doughnuts.removeFirst();
+        doughnutProductStockCalculatorService = new DoughnutStockServiceImpl(doughnuts);
+
+        Map<DoughnutType, Integer> doughnutsPurchased = types.stream()
+                .collect(Collectors.toMap(type -> type, type -> amount));
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> doughnutProductStockCalculatorService.calculateCostOfDoughnuts(doughnutsPurchased)
+        );
+
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @ParameterizedTest

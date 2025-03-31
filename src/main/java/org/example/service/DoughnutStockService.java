@@ -30,6 +30,14 @@ public interface DoughnutStockService {
     int calculateTotalSugarForDay(Day day);
 
     /**
+     * Calculates the total sugar (in grams) needed for all doughnuts produced on a specific day.
+     *
+     * @param doughnutAmount a map where each key is a doughnut type, and each value the amount of doughnuts being purchased
+     * @return the total amount of sugar needed for that day
+     */
+    double calculateCostOfDoughnuts(Map<DoughnutType, Integer> doughnutAmount);
+
+    /**
      * Retrieves the available quantity of a specific type of doughnut for a given day.
      *
      * @param doughnutType the type of doughnut

@@ -28,7 +28,19 @@ public class DoughnutStockServiceImpl implements DoughnutStockService {
 
         // For each doughnut, multiply the quantity scheduled for the day by the sugar per unit and sum it all up
         return doughnuts.stream()
-                .mapToInt(s -> s.getSchedule().get(day) * s.getSugar())
+                .mapToInt(d -> d.getSchedule().get(day) * d.getSugar())
+                .sum();
+    }
+
+    @Override
+    public double calculateCostOfDoughnuts(Map<DoughnutType, Integer> doughnutAmount) {
+        // For each doughnut type and quantity, multiply the price by the amount and sum the total
+        return doughnutAmount.entrySet().stream()
+                .mapToDouble(d -> {
+                    validateAmount(d.getValue());
+                    Doughnut doughnut = findDoughnut(d.getKey());
+                    return doughnut.getPrice() * d.getValue();
+                })
                 .sum();
     }
 
@@ -74,7 +86,6 @@ public class DoughnutStockServiceImpl implements DoughnutStockService {
     public void addBulkStock(Map<DoughnutType, Map<Day, Integer>> bulkUpdates) {
         // For each doughnut type provided in the update map
         bulkUpdates.forEach((doughnutType, dayMap) -> {
-            validateNotNull(doughnutType, "doughnutType");
             Doughnut doughnut = findDoughnut(doughnutType);
 
             // For each day/amount pair, validate and merge the amount into the current schedule
@@ -92,7 +103,6 @@ public class DoughnutStockServiceImpl implements DoughnutStockService {
     public void removeBulkStock(Map<DoughnutType, Map<Day, Integer>> bulkRemovals) {
         // For each doughnut type provided in the removal map
         bulkRemovals.forEach((doughnutType, dayMap) -> {
-            validateNotNull(doughnutType, "doughnutType");
             Doughnut doughnut = findDoughnut(doughnutType);
 
             // For each day/amount pair, validate and subtract the amount from the schedule
