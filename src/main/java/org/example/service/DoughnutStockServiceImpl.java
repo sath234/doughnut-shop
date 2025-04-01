@@ -61,7 +61,7 @@ public class DoughnutStockServiceImpl implements DoughnutStockService {
 
         // Find the doughnut and update the stock for the specified day
         Doughnut doughnut = findDoughnut(doughnutType);
-        doughnut.getSchedule().compute(day, (k, currentStock) -> currentStock + amount);
+        doughnut.getSchedule().put(day, doughnut.getSchedule().getOrDefault(day, 0) + amount);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class DoughnutStockServiceImpl implements DoughnutStockService {
                 validateAmount(amount);
 
                 // Increase the scheduled quantity for the day by the specified amount
-                doughnut.getSchedule().merge(day, amount, Integer::sum);
+                doughnut.getSchedule().put(day, doughnut.getSchedule().getOrDefault(day, 0) + amount);
             });
         });
     }
