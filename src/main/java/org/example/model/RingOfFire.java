@@ -8,9 +8,7 @@ import java.util.Map;
 @Getter
 @Setter
 public class RingOfFire extends Doughnut {
-    public RingOfFire(double price, Map<Day, Integer> schedule) {
-        super(price, DoughnutType.RING_OF_FIRE, 30, 15, schedule);
-        this.price = price;
-        this.schedule = schedule;
+    public RingOfFire() {
+        super("Ring Of Fire", 2.50, 30, 15, Map.of(Day.SATURDAY, 10, Day.SUNDAY, 5));
     }
 }

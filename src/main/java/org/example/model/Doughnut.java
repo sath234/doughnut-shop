@@ -2,15 +2,17 @@ package org.example.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Doughnut {
-    protected double price;
-    protected DoughnutType type;
-    protected int flour;
-    protected int sugar;
-    protected Map<Day, Integer> schedule;
+    private String name;
+    private double price;
+    private int flour;
+    private int sugar;
+    private Map<Day, Integer> schedule;
 }

@@ -8,9 +8,7 @@ import java.util.Map;
 @Getter
 @Setter
 public class DohNuts extends Doughnut {
-    public DohNuts(double price, Map<Day, Integer> schedule) {
-        super(price, DoughnutType.DOH_NUTS, 30, 20, schedule);
-        this.price = price;
-        this.schedule = schedule;
+    public DohNuts() {
+        super("Doh Nuts", 2.50, 30, 20, Map.of(Day.SATURDAY, 30, Day.SUNDAY, 20));
     }
 }
